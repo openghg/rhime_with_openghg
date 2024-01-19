@@ -1,8 +1,4 @@
 # *****************************************************************************
-# Created: 7 Nov. 2022
-# Author: Eric Saboya, School of Geographical Sciences, University of Bristol
-# Contact: eric.saboya@bristol.ac.uk
-# *****************************************************************************
 # About
 #   Originally created by Luke Western (ACRG) and updated, here, by Eric Saboya
 #   Functions for performing MCMC inversion.
@@ -19,11 +15,11 @@ from pathlib import Path
 
 from openghg.retrieve import get_flux
 
-from openghg_inversions import convert 
-from openghg_inversions import utils
-from openghg_inversions.hbmcmc.inversionsetup import opends, offset_matrix
-from openghg_inversions.hbmcmc.hbmcmc_output import define_output_filename
-from openghg_inversions.config.version import code_version
+from rhime_with_openghg import convert 
+from rhime_with_openghg import utils
+from rhime_with_openghg.rhime.inversionsetup import opends, offset_matrix
+from rhime_with_openghg.rhime.rhime_output import define_output_filename
+from rhime_with_openghg.config.version import code_version
 
 def parseprior(name, prior_params, shape = ()):
     """
@@ -161,8 +157,8 @@ def inferpymc(species, Hx, Hbc, Y, error, siteindicator, sigma_freq_index,
         Currently it's hardwired to a slice sampler. This parameter is low
         dimensional and quite simple with a slice sampler, although could 
         easily be changed.
-    
-      model_error
+      model_error:
+        Calculate model_error values  
 
  
     TO DO:
@@ -311,7 +307,7 @@ def inferpymc(species, Hx, Hbc, Y, error, siteindicator, sigma_freq_index,
         
         return outs, bcouts, sigouts, offset_outs, Ytrace, YBCtrace, OFFtrace, convergence, step1, step2, model_error
 
-def inferpymc_postprocessouts(xouts,bcouts, sigouts, offset_outs, convergence, 
+def inferpymc_postprocessouts(xouts, bcouts, sigouts, offset_outs, convergence, 
                                Hx, Hbc, Y, error, Ytrace, YBCtrace, offset_trace, 
                                step1, step2, model_error, 
                                xprior, bcprior, sigprior, offsetprior, Ytime, siteindicator, sigma_freq_index,
@@ -319,11 +315,11 @@ def inferpymc_postprocessouts(xouts,bcouts, sigouts, offset_outs, convergence,
                                start_date, end_date, outputname, outputpath,
                                country_unit_prefix,
                                burn, tune, nchain, sigma_per_site,
-                               emissions_name, emissions_store, fp_data=None, 
-                               basis_directory=None, country_file=None,
-                               add_offset=False, rerun_file=None):
+                               emissions_name, emissions_store, fp_data = None, 
+                               basis_directory = None, country_file = None,
+                               add_offset = False, rerun_file = None):
 
-        '''
+        """
         Takes the output from inferpymc3 function, along with some other input
         information, and places it all in a netcdf output. This function also 
         calculates the mean posterior emissions for the countries in the 
@@ -437,7 +433,7 @@ def inferpymc_postprocessouts(xouts,bcouts, sigouts, offset_outs, convergence,
             - Currently it can only work out the country total emissions if
               the a priori emissions are constant over the inversion period
               or else monthly (and inversion is for less than one calendar year).
-        '''
+        """
         
         print("Post-processing output")
          
