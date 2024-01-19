@@ -16,7 +16,7 @@
 import yaml
 from pathlib import Path
 
-_openghginv_path = Path(__file__).parents[2]
+_rhime_path = Path(__file__).parents[2]
 # _openghginv_config_path = Path(__file__).parents[0]
 
 # _user_defined_data_paths = sorted(_openghginv_config_path.glob("paths.y*ml"))
@@ -45,7 +45,7 @@ class Paths:
     paths.obs: path to obs folder
     path.lpdm: path to LPDM data directory
     '''
-    openghginv = _openghginv_path
+    rhime = _openghginv_path
 #    obs = Path(_data_paths["obs_folder"])
 #    lpdm = Path(_data_paths["lpdm_folder"])
 #    if "data_folder" in _data_paths:
