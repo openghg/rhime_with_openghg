@@ -38,7 +38,7 @@ First you'll need to clone the repository
 git clone https://github.com/openghg/rhime_with_openghg.git
 ```
 
-Next make sure `pip` and related install tools are up to date and then install OpenGHG Inversions using the editable install flag (`-e`)
+Next make sure `pip` and related install tools are up to date and then install RHIME-with-OpenGHG using the editable install flag (`-e`)
 
 ```bash
 pip install --upgrade pip setuptools wheel
@@ -47,7 +47,7 @@ pip install -e rhime_with_openghg
 
 ### Setup
 
-Once installed, ensure that your OpenGHG object store is configured and that you are comfortable with adding data to your object store. The HBMCMC inversion model assumes all necessary data required for the inversion run has already been added to the object store.  
+Once installed, ensure that your OpenGHG object store is configured and that you are comfortable with adding data to your object store. The RHIME inverse model assumes all necessary data required for the inversion run has already been added to the object store.  
 
 ----
 
