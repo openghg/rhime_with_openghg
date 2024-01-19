@@ -1,8 +1,4 @@
 # *****************************************************************************
-# Created: 30 Nov. 2023
-# Author: Eric Saboya, School of Geographical Sciences, University of Bristol
-# Contact: eric.saboya@bristol.ac.uk
-# *****************************************************************************
 # About
 # Different functions for retrieving appropriate datasets for forward 
 # simulations
@@ -107,7 +103,7 @@ def data_processing_surface_notracer(species, sites, domain, averaging_period, s
 
     for i, site in enumerate(sites): sites[i]=site.upper()
 
-    # Convert 'None' args to list
+    # Convert "None" args to list
     nsites = len(sites)
     if inlet == None:
         inlet = [None] * nsites
@@ -181,7 +177,7 @@ def data_processing_surface_notracer(species, sites, domain, averaging_period, s
             get_bc_data.data.vmr_e.values = get_bc_data.data.vmr_e.values/unit
             get_bc_data.data.vmr_s.values = get_bc_data.data.vmr_s.values/unit
             get_bc_data.data.vmr_w.values = get_bc_data.data.vmr_w.values/unit
-            my_bc = BoundaryConditionsData(get_bc_data.data.transpose("height","lat","lon","time"),
+            my_bc = BoundaryConditionsData(get_bc_data.data.transpose("height", "lat", "lon", "time"),
                                            get_bc_data.metadata)
             fp_all[".bc"] = my_bc
 
@@ -276,8 +272,3 @@ def data_processing_surface_notracer(species, sites, domain, averaging_period, s
         print(f"\nfp_all saved in {merged_data_dir}\n")
 
     return fp_all
-
-
-
-
-
