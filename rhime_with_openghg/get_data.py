@@ -16,7 +16,8 @@ import numpy as np
 import pandas as pd
 import pickle
 
-import openghg_inversions.hbmcmc.inversionsetup as setup
+import rhime_with_openghg.rhime.inversionsetup as setup
+
 from openghg.retrieve import get_obs_surface, get_flux
 from openghg.retrieve import get_bc, get_footprint
 from openghg.analyse import ModelScenario
