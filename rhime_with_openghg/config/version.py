@@ -13,9 +13,9 @@ Updated by Eric Saboya (Dec. 2022)
 """
 
 import subprocess
-from openghg_inversions.config.paths import Paths
+from rhime_with_openghg.config.paths import Paths
 
-openghginv_path = Paths.openghginv
+rhime_path = Paths.rhime
 
 def code_version():
     '''   
@@ -29,9 +29,9 @@ def code_version():
     '''
     try:
         output = subprocess.run(['git', 'describe'], 
-                                capture_output=True,
-                                cwd=openghginv_path,
-                                universal_newlines=True)
+                                capture_output = True,
+                                cwd = rhime_path,
+                                universal_newlines = True)
         #remove newlines and cast as string
         version = str(output.stdout.strip('\n'))
     except:
