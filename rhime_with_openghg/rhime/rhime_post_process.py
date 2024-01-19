@@ -24,7 +24,7 @@ import os
 import glob
 import json
 import pandas as pd
-import pymc3 as pm
+import pymc as pm
 import numpy as np
 import xarray as xr
 import matplotlib.dates as mdates
@@ -42,7 +42,7 @@ acrg_path = os.path.join("/group/chemistry/acrg") #Paths.acrg
 
 # Get site_info file
 with open(acrg_path / "data/site_info.json") as f:
-    site_info=json.load(f,object_pairs_hook=OrderedDict)
+    site_info = json.load(f, object_pairs_hook = OrderedDict)
 
 def check_platform(site,network=None):
     """
