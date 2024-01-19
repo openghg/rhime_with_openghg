@@ -1,42 +1,38 @@
 # ****************************************************************************
-# Created: 7 Nov. 2022
-# Author: Eric Saboya, School of Geographical Sciences, University of Bristol
-# Contact: eric.saboya@bristol.ac.uk
-# ****************************************************************************
 # Originally created by Mark Lunt and updated by Rachel Tunnicliffe (ACRG)
 # and updated, here, by Eric Saboya.
 #
 # About:
-#   Template file for creating plots with output of hbmcmc. This file uses
-#   hbmcmc_post_process.py
+#   Template file for creating plots with output of RHIME. This file uses
+#   rhime_post_process.py
 #
 # ****************************************************************************
 
 import os 
 import numpy as np
 import matplotlib.pyplot as plt 
-from openghg_inversions.hbmcmc import hbmcmc_post_process as process
-from openghg_inversions.config.paths import Paths
+from rhime_with_openghg.rhime import rhime_post_process as process
+from rhime_with_openghg.config.paths import Paths
 
 #openghginv_path = Paths.openghginv
 
 if __name__=="__main__":
 
     # General Inputs
-    dates=[] # Can be a list of one date or many dates
-    species="species"
-    domain="domain"
-    runname='runname'
+    dates = [] # Can be a list of one date or many dates
+    species = "species"
+    domain = "domain"
+    runname = "runname"
     
     output_directory = "path_to_output" # ** UPDATE OUTPUT DIRECTORY **
     
     # Post-processing options 
-    calc_country=False
-    plot_scale_map=True
-    plot_abs_map=True
-    plot_diff_map=True
-    plot_y_timeseries=True
-    plot_countryemissions=True
+    calc_country = False
+    plot_scale_map = True
+    plot_abs_map = True
+    plot_diff_map = True
+    plot_y_timeseries = True
+    plot_countryemissions = True
     
     # Parameters for each post-processing optinons
     #   Only used if relevant value above is set to True
@@ -77,7 +73,7 @@ if __name__=="__main__":
     CI_to_plot = 95 # 95 or 68 CI
     
     # Implement processing options
-    print('Beginning post processing ...')
+    print("Beginning post processing ...")
     
     if output_directory == "/path/to/output/directory/":
         raise Exception("Please set output directory.")
@@ -85,7 +81,7 @@ if __name__=="__main__":
         raise Exception("Output directory: {} does not exist.".format(output_directory))
     
     # Extract datasets from file
-    ds_list, filenames = process.extract_hbmcmc_files(output_directory,
+    ds_list, filenames = process.extract_rhime_files(output_directory,
                                                       species, 
                                                       domain, 
                                                       runname, 
@@ -108,46 +104,46 @@ if __name__=="__main__":
     # Plot scaling map
     if plot_scale_map == True:
         process.plot_scale_map(ds_list, 
-                               lat=lat, 
-                               lon=lon, 
-                               grid=grid_scale_map,
-                               clevels=s_clevels,
-                               cmap=s_cmap,
-                               labels=None,
-                               title=None,
-                               smooth=s_smooth,
-                               out_filename=s_out_filename,
-                               extend="both")
+                               lat = lat, 
+                               lon = lon, 
+                               grid = grid_scale_map,
+                               clevels = s_clevels,
+                               cmap = s_cmap,
+                               labels = None,
+                               title = None,
+                               smooth = s_smooth,
+                               out_filename = s_out_filename,
+                               extend = "both")
     
     # Plot absolute difference map
     if plot_diff_map == True:
         process.plot_diff_map(ds_list,
                               species, 
-                              lat=lat, 
-                              lon=lon,
-                              grid=grid_diff_map,
-                              clevels=d_clevels, 
-                              cmap=d_cmap,
-                              labels=None,
-                              title=None,
-                              smooth=d_smooth,
-                              out_filename=d_out_filename,
-                              extend="both")
+                              lat = lat, 
+                              lon = lon,
+                              grid = grid_diff_map,
+                              clevels = d_clevels, 
+                              cmap = d_cmap,
+                              labels = None,
+                              title = None,
+                              smooth = d_smooth,
+                              out_filename = d_out_filename,
+                              extend = "both")
 
     # Plot absolute map
     if plot_abs_map == True:
         process.plot_abs_map(ds_list,
                              species, 
-                             lat=lat, 
-                             lon=lon,
-                             grid=grid_abs_map,
-                             clevels=a_clevels, 
-                             cmap=a_cmap,
-                             labels=None,
-                             title=None,
-                             smooth=a_smooth,
-                             out_filename=a_out_filename,
-                             extend="max")
+                             lat = lat, 
+                             lon = lon,
+                             grid = grid_abs_map,
+                             clevels = a_clevels, 
+                             cmap = a_cmap,
+                             labels = None,
+                             title = None,
+                             smooth = a_smooth,
+                             out_filename = a_out_filename,
+                             extend = "max")
 
     # Plot y timeseries
     if plot_y_timeseries == True:
