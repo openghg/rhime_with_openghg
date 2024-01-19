@@ -1,12 +1,8 @@
 # ****************************************************************************
-# Created: 7 Nov. 2022
-# Author: Eric Saboya, School of Geographical Sciences, University of Bristol
-# Contact: ericsaboya@bristol.ac.uk
-# ****************************************************************************
 # About
 # Script containing common Python functions that can be called for running 
 # inverse models. 
-# Most functions have been copied from the acrg repo (e.g. acrg.name)
+# Most functions have been copied from the ACRG repo 
 # 
 # ****************************************************************************
 
@@ -26,10 +22,11 @@ import dateutil.relativedelta
 from tqdm import tqdm
 import dask.array as da
 from collections import OrderedDict
-from openghg_inversions import convert
-from openghg_inversions.config.paths import Paths
 
-openghginv_path = Paths.openghginv
+from rhime_with_openghg import convert
+from rhime_with_openghg.config.paths import Paths
+
+rhime_path = Paths.rhime
 
 # GJ NOTE - I moved this to be read in closer to where it was used
 # and to use the load_json function
@@ -156,12 +153,12 @@ class get_country(object):
   def __init__(self, domain, country_file=None):
 
         if country_file is None:
-            if not os.path.exists(os.path.join(openghginv_path, "countries/")):
-                os.makedirs(os.path.join(openghginv_path, "countries/"))
+            if not os.path.exists(os.path.join(rhime_path, "countries/")):
+                os.makedirs(os.path.join(rhime_path, "countries/"))
                 raise FileNotFoundError ("Country definition file not found."
-                                         f" Please add to {openghginv_path}/countries/")
+                                         f" Please add to {rhime_path}/countries/")
             else:
-                country_directory = os.path.join(openghginv_path, "countries/")
+                country_directory = os.path.join(rhime_path, "countries/")
 
             filename = glob.glob(os.path.join(country_directory, f"country_{domain}.nc"))
             f = xr.open_dataset(filename[0])
@@ -437,7 +434,7 @@ def areagrid(lat, lon):
   return area
 
 def basis(domain, basis_case, basis_directory = None):
-    '''
+    """
     The basis function reads in the all matching files for the 
     basis case and domain as an xarray Dataset.
     
@@ -463,13 +460,13 @@ def basis(domain, basis_case, basis_directory = None):
       xarray.Dataset: 
         combined dataset of matching basis functions
     -----------------------------------
-    '''
+    """
     if basis_directory is None:
-        if not os.path.exists(os.path.join(openghginv_path, 'basis_functions/')):
-            os.makedirs(os.path.join(openghginv_path, 'basis_functions/'))
-        basis_directory = os.path.join(openghginv_path, 'basis_functions/')
+        if not os.path.exists(os.path.join(rhime_path, "basis_functions/")):
+            os.makedirs(os.path.join(rhime_path, "basis_functions/"))
+        basis_directory = os.path.join(rhime_path, "basis_functions/")
 
-    file_path = os.path.join(basis_directory,domain,f"{basis_case}_{domain}*.nc")
+    file_path = os.path.join(basis_directory, domain, f"{basis_case}_{domain}*.nc")
     files = sorted(glob.glob(file_path))
 
     if len(files) == 0:
@@ -481,7 +478,7 @@ def basis(domain, basis_case, basis_directory = None):
     return basis_ds
 
 def basis_boundary_conditions(domain, basis_case, bc_basis_directory = None):
-    '''
+    """
     The basis_boundary_conditions function reads in all matching files 
     for the boundary conditions basis case and domain as an xarray Dataset.
     
@@ -504,20 +501,20 @@ def basis_boundary_conditions(domain, basis_case, bc_basis_directory = None):
       xarray.Datset: 
         Combined dataset of matching basis functions
     -----------------------------------
-    '''
+    """
     if bc_basis_directory is None:
-        if not os.path.exists(os.path.join(openghginv_path, 'bc_basis_functions/')):
-            os.makedirs(os.path.join(openghginv_path, 'bc_basis_functions/'))
-        bc_basis_directory = os.path.join(openghginv_path, 'bc_basis_functions/')
+        if not os.path.exists(os.path.join(rhime_path, "bc_basis_functions/")):
+            os.makedirs(os.path.join(rhime_path, "bc_basis_functions/"))
+        bc_basis_directory = os.path.join(rhime_path, "bc_basis_functions/")
 
-    file_path = os.path.join(bc_basis_directory,domain,f"{basis_case}_{domain}*.nc")
+    file_path = os.path.join(bc_basis_directory, domain, f"{basis_case}_{domain}*.nc")
 
     files = sorted(glob.glob(file_path))
     file_no_acc = [ff for ff in files if not os.access(ff, os.R_OK)]
     files = [ff for ff in files if os.access(ff, os.R_OK)]
 
     if len(file_no_acc)>0:
-        print('Warning: unable to read all boundary conditions basis function files which match this criteria:')
+        print("Warning: unable to read all boundary conditions basis function files which match this criteria:")
         [print(ff) for ff in file_no_acc]
 
     if len(files) == 0:
@@ -529,7 +526,7 @@ def basis_boundary_conditions(domain, basis_case, bc_basis_directory = None):
     return basis_ds
 
 def indexesMatch(dsa, dsb):
-    '''
+    """
     Check if two datasets need to be reindexed_like for combine_datasets
     -----------------------------------
     Args:
@@ -542,8 +539,7 @@ def indexesMatch(dsa, dsb):
       boolean:
         True if indexes match, False if datasets must be reindexed
     -----------------------------------
-    '''
-
+    """
     commonIndicies  = [key for key in dsa.indexes.keys() if key in dsb.indexes.keys()]
 
     #test if each comon index is the same
@@ -558,13 +554,13 @@ def indexesMatch(dsa, dsb):
             rtol = 1e-10
         else:
             rtol = 1e-5
-        if not np.sum(~np.isclose(dsa.indexes[index].values.astype(float),dsb.indexes[index].values.astype(float), rtol=rtol ))==0:
+        if not np.sum(~np.isclose(dsa.indexes[index].values.astype(float),dsb.indexes[index].values.astype(float), rtol=rtol)) == 0:
             return False
 
     return True
 
 def combine_datasets(dsa, dsb, method = "ffill", tolerance = None):
-    '''
+    """
     The combine_datasets function merges two datasets and re-indexes 
     to the FIRST dataset. If "fp" variable is found within the combined 
     dataset, the "time" values where the "lat","lon"dimensions didn't 
@@ -589,7 +585,7 @@ def combine_datasets(dsa, dsb, method = "ffill", tolerance = None):
       xarray.Dataset: 
         Combined dataset indexed to dsa
     -----------------------------------
-    '''
+    """
     # merge the two datasets within a tolerance and remove times that are NaN (i.e. when FPs don't exist)
 
     if not indexesMatch(dsa, dsb):
@@ -598,16 +594,16 @@ def combine_datasets(dsa, dsb, method = "ffill", tolerance = None):
         dsb_temp = dsb
 
     ds_temp = dsa.merge(dsb_temp)
-    if 'fp' in list(ds_temp.keys()):
-        flag = np.where(np.isfinite(ds_temp.fp.mean(dim=["lat","lon"]).values))
+    if "fp" in list(ds_temp.keys()):
+        flag = np.where(np.isfinite(ds_temp.fp.mean(dim=["lat", "lon"]).values))
         ds_temp = ds_temp[dict(time = flag[0])]
     return ds_temp
 
 
-def timeseries_HiTRes(flux_dict, fp_HiTRes_ds=None, fp_file=None, output_TS = True, output_fpXflux = True,
-                      output_type='Dataset', output_file=None, verbose=False, chunks=None,
-                      time_resolution='1H'):
-    '''
+def timeseries_HiTRes(flux_dict, fp_HiTRes_ds = None, fp_file = None, output_TS = True, output_fpXflux = True,
+                      output_type = 'Dataset', output_file = None, verbose = False, chunks = None,
+                      time_resolution = "1H"):
+    """
     The timeseries_HiTRes function computes flux * HiTRes footprints.
     
     HiTRes footprints record the footprint at each 2 hour period back 
@@ -658,12 +654,12 @@ def timeseries_HiTRes(flux_dict, fp_HiTRes_ds=None, fp_file=None, output_TS = Tr
         If output_fpXflux is True:
           Outputs the sensitivity map   
     -----------------------------------
-    '''
+    """
     if verbose:
-        print(f'\nCalculating timeseries with {time_resolution} resolution, this might take a few minutes')
+        print(f"\nCalculating timeseries with {time_resolution} resolution, this might take a few minutes")
     ### get the high time res footprint
     if fp_HiTRes_ds is None and fp_file is None:
-        print('Must provide either a footprint Dataset or footprint filename')
+        print("Must provide either a footprint Dataset or footprint filename")
         return None
     elif fp_HiTRes_ds is None:
         fp_HiTRes_ds = read_netcdfs(fp_file, chunks=chunks)
@@ -941,55 +937,55 @@ def fp_sensitivity(fp_and_data, domain, basis_case,
             else:
                 site_bf = combine_datasets(fp_and_data[site]["fp"].to_dataset(), 
                                            fp_and_data[".flux"][source].data)
-                H_all = site_bf.fp*site_bf.flux
+                H_all = site_bf.fp * site_bf.flux
 
-            H_all_v = H_all.values.reshape((len(site_bf.lat)*len(site_bf.lon),len(site_bf.time)))
+            H_all_v = H_all.values.reshape((len(site_bf.lat) * len(site_bf.lon), len(site_bf.time)))
 
 
-            if 'region' in list(basis_func.dims.keys()):
+            if "region" in list(basis_func.dims.keys()):
 
-                if 'time' in basis_func.basis.dims:
+                if "time" in basis_func.basis.dims:
                     basis_func = basis_func.isel(time=0)
 
                 site_bf = xr.merge([site_bf, basis_func])
 
-                H = np.zeros((len(site_bf.region),len(site_bf.time)))
+                H = np.zeros((len(site_bf.region), len(site_bf.time)))
 
-                base_v = site_bf.basis.values.reshape((len(site_bf.lat)*len(site_bf.lon), len(site_bf.region)))
+                base_v = site_bf.basis.values.reshape((len(site_bf.lat) * len(site_bf.lon), len(site_bf.region)))
 
                 for i in range(len(site_bf.region)):
-                    H[i,:] = np.nansum(H_all_v*base_v[:,i,np.newaxis], axis = 0)
+                    H[i,:] = np.nansum(H_all_v * base_v[:,i,np.newaxis], axis = 0)
 
                 if source == all:
                     if (sys.version_info < (3,0)):
                         region_name = site_bf.region
                     else:
-                        region_name = site_bf.region.decode('ascii')
+                        region_name = site_bf.region.decode("ascii")
                 else:
                     if (sys.version_info < (3,0)):
-                        region_name = [source+'-'+reg for reg in site_bf.region.values]
+                        region_name = [source+"-"+reg for reg in site_bf.region.values]
                     else:
-                        region_name = [source+'-'+reg.decode('ascii') for reg in site_bf.region.values]
+                        region_name = [source+"-"+reg.decode('ascii') for reg in site_bf.region.values]
 
                 sensitivity = xr.DataArray(H,
-                                           coords=[('region', region_name),
-                                                   ('time', fp_and_data[site].coords['time'])])
+                                           coords=[("region", region_name),
+                                                   ("time", fp_and_data[site].coords["time"])])
 
             else:
                 print("Warning: Using basis functions without a region dimension may be deprecated shortly.")
 
-                site_bf = combine_datasets(site_bf, basis_func, method="ffill")
+                site_bf = combine_datasets(site_bf, basis_func, method = "ffill")
 
                 H = np.zeros((int(np.max(site_bf.basis)),len(site_bf.time)))
 
-                basis_scale = xr.Dataset({"basis_scale": (["lat","lon","time"], np.zeros(np.shape(site_bf.basis)))},
+                basis_scale = xr.Dataset({"basis_scale": (["lat", "lon", "time"], np.zeros(np.shape(site_bf.basis)))},
                                          coords = site_bf.coords)
                 site_bf = site_bf.merge(basis_scale)
 
                 base_v = np.ravel(site_bf.basis.values[:,:,0])
                 for i in range(int(np.max(site_bf.basis))):
                     wh_ri = np.where(base_v == i+1)
-                    H[i,:]=np.nansum(H_all_v[wh_ri[0],:], axis = 0)
+                    H[i,:] = np.nansum(H_all_v[wh_ri[0],:], axis = 0)
 
                 if source == all:
                     region_name = list(range(1,np.max(site_bf.basis.values)+1))
@@ -1050,7 +1046,7 @@ def fp_sensitivity(fp_and_data, domain, basis_case,
 
 
 def bc_sensitivity(fp_and_data, domain, basis_case, bc_basis_directory = None):
-    '''
+    """
     The bc_sensitivity adds H_bc to the sensitivity matrix, 
     to each site xarray dataframe in fp_and_data.
     -----------------------------------
@@ -1070,12 +1066,13 @@ def bc_sensitivity(fp_and_data, domain, basis_case, bc_basis_directory = None):
       dict (xarray.Dataset): 
         Same format as fp_and_data with sensitivity matrix added.
     -----------------------------------
-    '''
+    """
 
-    sites = [key for key in list(fp_and_data.keys()) if key[0] != '.']
+    sites = [key for key in list(fp_and_data.keys()) if key[0] != "."]
 
     basis_func = basis_boundary_conditions(domain = domain,
-                                           basis_case = basis_case, bc_basis_directory=bc_basis_directory)
+                                           basis_case = basis_case, 
+                                           bc_basis_directory = bc_basis_directory)
 # sort basis_func into time order    
     ind = basis_func.time.argsort()
     timenew = basis_func.time[ind]
@@ -1089,12 +1086,12 @@ def bc_sensitivity(fp_and_data, domain, basis_case, bc_basis_directory = None):
     for site in sites:
 # ES commented out line below as .bc not attribute. Also assume openghg adds all relevant particle data to file.
 #        if fp_and_data[site].bc.chunks is not None:
-        for particles in ['particle_locations_n', 'particle_locations_e',
-                          'particle_locations_s', 'particle_locations_w']:
+        for particles in ["particle_locations_n", "particle_locations_e",
+                          "particle_locations_s", "particle_locations_w"]:
             fp_and_data[site][particles] = fp_and_data[site][particles].compute()
 
         # compute any chemical loss to the BCs, use lifetime or else set loss to 1 (no loss)
-        if 'lifetime' in species_info[species].keys():
+        if "lifetime" in species_info[species].keys():
             lifetime = species_info[species]["lifetime"]
             lifetime_hrs_list_or_float = convert.convert_to_hours(lifetime)
 
@@ -1107,19 +1104,19 @@ def bc_sensitivity(fp_and_data, domain, basis_case, bc_basis_directory = None):
             else:
                 lifetime_hrs = lifetime_hrs_list_or_float
 
-            loss_n = np.exp(-1*fp_and_data[site].mean_age_particles_n/lifetime_hrs).rename('loss_n')
-            loss_e = np.exp(-1*fp_and_data[site].mean_age_particles_e/lifetime_hrs).rename('loss_e')
-            loss_s = np.exp(-1*fp_and_data[site].mean_age_particles_s/lifetime_hrs).rename('loss_s')
-            loss_w = np.exp(-1*fp_and_data[site].mean_age_particles_w/lifetime_hrs).rename('loss_w')
+            loss_n = np.exp(-1*fp_and_data[site].mean_age_particles_n/lifetime_hrs).rename("loss_n")
+            loss_e = np.exp(-1*fp_and_data[site].mean_age_particles_e/lifetime_hrs).rename("loss_e")
+            loss_s = np.exp(-1*fp_and_data[site].mean_age_particles_s/lifetime_hrs).rename("loss_s")
+            loss_w = np.exp(-1*fp_and_data[site].mean_age_particles_w/lifetime_hrs).rename("loss_w")
         else:
             loss_n = fp_and_data[site].particle_locations_n.copy()
             loss_e = fp_and_data[site].particle_locations_e.copy()
             loss_s = fp_and_data[site].particle_locations_s.copy()
             loss_w = fp_and_data[site].particle_locations_w.copy()
-            loss_n[:]=1
-            loss_e[:]=1
-            loss_s[:]=1
-            loss_w[:]=1
+            loss_n[:] = 1
+            loss_e[:] = 1
+            loss_s[:] = 1
+            loss_w[:] = 1
 
         DS_particle_loc = xr.Dataset({"particle_locations_n":fp_and_data[site]["particle_locations_n"],
                                 "particle_locations_e":fp_and_data[site]["particle_locations_e"],
@@ -1131,47 +1128,49 @@ def bc_sensitivity(fp_and_data, domain, basis_case, bc_basis_directory = None):
                                 "loss_w":loss_w})
 #                                 "bc":fp_and_data[site]["bc"]})
 
-        DS_temp = combine_datasets(DS_particle_loc, fp_and_data[".bc"].data, method='ffill')
+        DS_temp = combine_datasets(DS_particle_loc, 
+                                   fp_and_data[".bc"].data, 
+                                   method = "ffill")
 
-        DS = combine_datasets(DS_temp, basis_func, method='ffill')
+        DS = combine_datasets(DS_temp, 
+                              basis_func, 
+                              method="ffill")
 
-        DS = DS.transpose('height','lat','lon','region','time')
+        DS = DS.transpose("height","lat","lon","region","time")
 
         part_loc = np.hstack([DS.particle_locations_n,
-                                DS.particle_locations_e,
-                                DS.particle_locations_s,
-                                DS.particle_locations_w])
+                              DS.particle_locations_e,
+                              DS.particle_locations_s,
+                              DS.particle_locations_w])
 
         loss = np.hstack([DS.loss_n,
-                                DS.loss_e,
-                                DS.loss_s,
-                                DS.loss_w])
+                          DS.loss_e,
+                          DS.loss_s,
+                          DS.loss_w])
 
         vmr_ed = np.hstack([DS.vmr_n,
-                           DS.vmr_e,
-                           DS.vmr_s,
-                           DS.vmr_w])
+                            DS.vmr_e,
+                            DS.vmr_s,
+                            DS.vmr_w])
 
         bf = np.hstack([DS.bc_basis_n,
                         DS.bc_basis_e,
                         DS.bc_basis_s,
                         DS.bc_basis_w])
 
-        H_bc = np.zeros((len(DS.coords['region']),len(DS["particle_locations_n"]["time"])))
+        H_bc = np.zeros((len(DS.coords["region"]), len(DS["particle_locations_n"]["time"])))
 
-        for i in range(len(DS.coords['region'])):
+        for i in range(len(DS.coords["region"])):
             reg = bf[:,:,i,:]
-            H_bc[i,:] = np.nansum((part_loc*loss*vmr_ed*reg), axis=(0,1))
+            H_bc[i,:] = np.nansum((part_loc * loss * vmr_ed * reg), axis = (0,1))
 
-        sensitivity = xr.Dataset({'H_bc': (['region_bc','time'], H_bc)},
-                                    coords = {'region_bc': (DS.coords['region'].values),
-                                              'time' : (DS.coords['time'])})
-
+        sensitivity = xr.Dataset({"H_bc": (["region_bc","time"], H_bc)},
+                                 coords = {"region_bc": (DS.coords["region"].values),
+                                           "time" : (DS.coords["time"])})
+        
         fp_and_data[site] = fp_and_data[site].merge(sensitivity)
 
     return fp_and_data
-
-
 
 def load_json(filename):
     """Load a JSON file from the internal data directory.
