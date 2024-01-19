@@ -12,7 +12,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-description = "OpenGHG Inversions"
+description = "RHIME with OpenGHG"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
@@ -26,8 +26,8 @@ dependencies = [
 ]
 
 [project.urls]
-"Home" = "https://github.com/openghg/openghg_inversions"
-"Bug Tracker" = "https://github.com/openghg/openghg_inversions/issues"
+"Home" = "https://github.com/openghg/rhime_with_openghg"
+"Bug Tracker" = "https://github.com/openghg/rhime_with_openghg/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
