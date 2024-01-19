@@ -1,34 +1,29 @@
 # ****************************************************************************
-# Created: 7 Nov. 2022
-# Author: Eric Saboya, School of Geographical Sciences, University of Bristol
-# Contact: ericsaboya@bristol.ac.uk
-# ****************************************************************************
 # About
 #   Originally created by Rachel Tunnicliffe (ACRG) and updated, here,
 #   by Eric Saboya.
-#   Functions for configuring HBMCMC inversion output files
+#   Functions for configuring RHIME inversion output files
 #
 # ****************************************************************************
 
 import os
 import re
-from openghg_inversions.config import config
+from rhime_with_openghg.config import config
 
 def check_and_create_folder(outputpath):
-    '''
+    """
     Check folder exists and create if not.
     -----------------------------------
     Args:
       outputpath (str):
         path of folder to check exists
     -----------------------------------
-    '''
-
+    """
     if not os.path.exists(outputpath):
         os.makedirs(outputpath)
 
-def define_output_filename(outputpath,species,domain,outputname,start_date,ext=".nc"):
-    '''
+def define_output_filename(outputpath, species, domain, outputname, start_date, ext=".nc"):
+    """
     Defining output filename to write to based on the format:
         'outputpath'/'species'_'domain'_'outputname'_'start_date''ext'
         e.g. /home/user/output/CH4_EUROPE_test_2014-01-01.nci
@@ -51,14 +46,14 @@ def define_output_filename(outputpath,species,domain,outputname,start_date,ext="
        outputname (str):
          fullpath with filename of output file.
      ----------------------------------
-    '''
+    """
 
     outputname = os.path.join(outputpath,f"{species.upper()}_{domain}_{outputname}_{start_date}{ext}")
     
     return outputname
 
-def copy_config_file(config_file,param=None,**command_line):
-    '''
+def copy_config_file(config_file, param=None, **command_line):
+    """
     Creating a copy of the inputs used to run MCMC code based 
     on the input config file and any additional parameters 
     specified on the command line.
@@ -88,7 +83,7 @@ def copy_config_file(config_file,param=None,**command_line):
         (output filename based on define_output_filename() 
          function with '.ini' extension)
     -----------------------------------
-    '''
+    """
     
     param_for_output_name = ["outputpath","species","domain",
                              "outputname","start_date"]
