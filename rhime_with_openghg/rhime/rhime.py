@@ -1,8 +1,4 @@
 # *****************************************************************************
-# Created: 7 Nov. 2022
-# Author: Eric Saboya, School of Geographical Sciences, University of Bristol
-# Contact: eric.saboya@bristol.ac.uk
-# *****************************************************************************
 # About
 #   Originally created by Luke Western (ACRG) and updated, here, by Eric Saboya
 #
@@ -21,7 +17,7 @@
 #  available thread. Apart from being annoying it will also slow down your run 
 #  due to unnecessary forking.
 #
-#  HBMCMC updated to use openghg as a dependency replacing (most) of the acrg
+#  RHIME updated to use openghg as a dependency replacing (most) of the acrg
 #  modules previously used. See example input file for how input variables 
 #  have chanegd.
 #
@@ -37,15 +33,16 @@ import pickle
 import shutil
 import numpy as np
 import pandas as pd
-import openghg_inversions.hbmcmc.inversionsetup as setup
-import openghg_inversions.hbmcmc.inversion_pymc as mcmc
+
+import rhime_with_openghg.rhime.inversionsetup as setup
+import rhime_with_openghg.rhime.inversion_pymc as mcmc
 from openghg.retrieve import get_obs_surface, get_flux
 from openghg.retrieve import get_bc, get_footprint
 from openghg.analyse import ModelScenario
 from openghg.dataobjects import BoundaryConditionsData
-import openghg_inversions.basis_functions as basis
-from openghg_inversions import utils
-from openghg_inversions import get_data
+import rhime_with_openghg.basis_functions as basis
+from rhime_with_openghg import utils
+from rhime_with_openghg import get_data
 
 
 def basis_functions_wrapper(basis_algorithm, nbasis, fp_basis_case, bc_basis_case,
@@ -491,7 +488,7 @@ def fixedbasisMCMC(species, sites, domain, averaging_period, start_date,
     print("---- Inversion completed ----")
 
 def rerun_output(input_file, outputname, outputpath, verbose=False):
-    '''
+    """
     Rerun the MCMC code by taking the inputs from a previous output 
     using this code and rewrite a new output. This allows reproducibility 
     of results without the need to transfer all raw input files.
@@ -511,7 +508,7 @@ def rerun_output(input_file, outputname, outputpath, verbose=False):
           over the inversion period and so will not be identical to the 
           original a priori flux, if it varies over the inversion period.
     -----------------------------------
-    '''
+    """
     def isFloat(string):
         try:
             float(string)
@@ -562,16 +559,63 @@ def rerun_output(input_file, outputname, outputpath, verbose=False):
     else:
         country_unit_prefix = None
 
-    xouts, bcouts, sigouts, Ytrace, YBCtrace, convergence, step1, step2 = mcmc.inferpymc3(Hx, Hbc, Y, error, siteindicator, 
-                                                                          sigma_freq_index, xprior,bcprior, sigprior, nit, burn,
-                                                                          tune, nchain, sigma_per_site, offsetprior=offsetprior,
-                                                                          add_offset=add_offset, verbose=verbose)
+        xouts, bcouts, sigouts, offset_outs, Ytrace, YBCtrace, offset_trace, convergence, step1, step2, model_error = mcmc.inferpymc(species, 
+                                                                                                                                     Hx, 
+                                                                                                                                     Hbc, 
+                                                                                                                                     Y, 
+                                                                                                                                     error, 
+                                                                                                                                     siteindicator, 
+                                                                                                                                     sigma_freq_index,
+                                                                                                                                     model_error_method, 
+                                                                                                                                     xprior, 
+                                                                                                                                     bcprior, 
+                                                                                                                                     sigprior, 
+                                                                                                                                     nit, 
+                                                                                                                                     burn, 
+                                                                                                                                     tune,                 
+                                                                                                                                     nchain, 
+                                                                                                                                     sigma_per_site, 
+                                                                                                                                     offsetprior = offsetprior, 
+                                                                                                                                     add_offset = add_offset, 
+                                                                                                                                     verbose = verbose)
 
-    mcmc.inferpymc3_postprocessouts(xouts,bcouts, sigouts, convergence,
-                                   Hx, Hbc, Y, error, Ytrace, YBCtrace,
-                                   step1, step2,
-                                   xprior, bcprior, sigprior, offsetprior, Ytime, siteindicator, sigma_freq_index,
-                                   domain, species, sites,
-                                   start_date, end_date, outputname, outputpath, country_unit_prefix,
-                                   burn, tune, nchain, sigma_per_site,
-                                   add_offset=add_offset, rerun_file=ds_in)
+        mcmc.inferpymc_postprocessouts(xouts, 
+                                       bcouts, 
+                                       sigouts, 
+                                       offset_outs, 
+                                       convergence,
+                                       Hx, 
+                                       Hbc, 
+                                       Y, 
+                                       error, 
+                                       Ytrace, 
+                                       YBCtrace, 
+                                       offset_trace,
+                                       step1, 
+                                       step2, 
+                                       model_error,
+                                       xprior, 
+                                       bcprior, 
+                                       sigprior, 
+                                       offsetprior, 
+                                       Ytime, 
+                                       siteindicator, 
+                                       sigma_freq_index,
+                                       domain, 
+                                       species, 
+                                       sites,
+                                       start_date, 
+                                       end_date, 
+                                       outputname, 
+                                       outputpath,
+                                       country_unit_prefix,
+                                       burn, 
+                                       tune, 
+                                       nchain, 
+                                       sigma_per_site,
+                                       fp_data = fp_data, 
+                                       emissions_name = emissions_name, 
+                                       emissions_store = emissions_store,
+                                       basis_directory = basis_dir, 
+                                       country_file = country_file,
+                                       add_offset = add_offset)
